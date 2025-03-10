@@ -1,0 +1,14 @@
+# Ignore virtual environment
+venv_mushroom/
+
+# Ignore dataset besar
+dataset/
+dataset_mushroom_vs_nonmushroom/
+dataset_resized/
+dataset_resized_nonmushroom/
+
+# Ignore model jika ukurannya besar
+*.pth
+
+# Ignore environment file
+.env
