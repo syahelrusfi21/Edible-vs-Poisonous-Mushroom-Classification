@@ -67,7 +67,7 @@ Add your GOOGLE_API_KEY inside .env
 ```
 5️⃣ Run the application:
 ```
-streamlit run apps.py
+streamlit run app.py
 ```
 
 ## 📊 Model Training
