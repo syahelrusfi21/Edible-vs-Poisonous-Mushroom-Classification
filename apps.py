@@ -14,33 +14,39 @@ from dotenv import load_dotenv
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-# **1. Load Model CNN untuk Klasifikasi Edible/Poisonous**
+# **1. Load CNN Model for Edibility Classification**
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_edibility = models.densenet121(pretrained=False)
 num_features = model_edibility.classifier.in_features
-model_edibility.classifier = nn.Linear(num_features, 2)  # 2 kelas: edible & poisonous
-model_edibility.load_state_dict(torch.load("S:/College/mushroom_project/edible_mushroom_classifier.pth", map_location=device))
+model_edibility.classifier = nn.Linear(num_features, 2)  # 2 classes: edible & poisonous
+try:
+    model_edibility.load_state_dict(torch.load("models/edible_mushroom_classifier.pth", map_location=device))
+except Exception as e:
+    st.error(f"Error loading edible classifier model: {e}")
 model_edibility.to(device)
 model_edibility.eval()
 
-# **2. Load Model untuk Deteksi "Jamur atau Bukan"**
+# **2. Load Model for "Mushroom or Not" Detection**
 model_mushroom = models.densenet121(pretrained=False)
 num_features = model_mushroom.classifier.in_features
-model_mushroom.classifier = nn.Linear(num_features, 2)  # 2 kelas: mushroom & non-mushroom
-model_mushroom.load_state_dict(torch.load("S:/College/mushroom_project/nonmushroom_classifier.pth", map_location=device))
+model_mushroom.classifier = nn.Linear(num_features, 2)  # 2 classes: mushroom & non-mushroom
+try:
+    model_mushroom.load_state_dict(torch.load("models/nonmushroom_classifier.pth", map_location=device))
+except Exception as e:
+    st.error(f"Error loading non-mushroom classifier model: {e}")
 model_mushroom.to(device)
 model_mushroom.eval()
 
-# **3. Transformasi Gambar**
+# **3. Image Transformation**
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# **4. Fungsi Deteksi "Apakah Ini Jamur?"**
+# **4. Function to Detect "Is This a Mushroom?"**
 def is_mushroom(image):
-    image = image.convert("RGB")  # Pastikan gambar memiliki 3 channel (RGB)
+    image = image.convert("RGB")  # To ensure the image has 3 channels (RGB)
     image = transform(image).unsqueeze(0).to(device)
     with torch.no_grad():
         output = model_mushroom(image)
@@ -50,7 +56,7 @@ def is_mushroom(image):
     labels = ["Jamur ✅", "Non-Jamur ❌"]
     return labels[class_index], probabilities[class_index].item()
 
-# **5. Fungsi Prediksi Edibility**
+# **5. Function to Predict Edibility**
 def predict_edibility(image):
     image = image.convert("RGB")
     image = transform(image).unsqueeze(0).to(device)
@@ -62,10 +68,10 @@ def predict_edibility(image):
     labels = ["Layak dikonsumsi 🍄", "Beracun ☠️"]
     return labels[class_index], probabilities[class_index].item()
 
-# **6. Konfigurasi Google Gemini API**
+# **6. Configure Google Gemini API**
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# **7. Fungsi Mendapatkan Informasi Jamur dari Google Gemini**
+# **7. Function to Get Mushroom Information from Google Gemini**
 def get_mushroom_info(image):
     if image.mode != "RGB":
         image = image.convert("RGB")
@@ -73,17 +79,22 @@ def get_mushroom_info(image):
     image.save(img_byte_arr, format="JPEG")
     img_base64 = base64.b64encode(img_byte_arr.getvalue()).decode("utf-8")
     
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    response = model.generate_content([
+    try:
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        response = model.generate_content([
         "Tolong identifikasi genus dan spesies jamur dalam gambar ini.",
         {"mime_type": "image/jpeg", "data": img_base64}
-    ])
-    
-    return response.text
+        ])
+        if response and hasattr(response, 'text'):
+            return response.text
+        else:
+            return "Informasi tidak tersedia."
+    except Exception as e:
+        return f"Terjadi kesalahan saat mengambil informasi: {e}"
 
-# **8. UI Streamlit**
+# **8. Streamlit UI**
 
-# ================== Styling Custom ==================
+# ================== Custom Styling ==================
 st.markdown(
     """
     <style>
@@ -146,7 +157,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ================== Header dengan Icon Jamur di Awal ==================
+# ================== Header with Mushroom Icon ==================
 st.markdown(
     """
     <h1 class="title">🍄 Selamat Datang di Aplikasi Deteksi Jamur</h1>
@@ -160,7 +171,7 @@ st.write(
     "**layak dikonsumsi atau beracun**."
 )
 
-# Tambahkan "Catatan" dalam box dengan styling
+# Warning Box for User
 st.markdown(
     '<div class="warning-box">⚠️ <b>Peringatan:</b> Hasil analisis ini hanya berbasis gambar dan AI. <br> Tetap waspada dan jangan konsumsi jamur tanpa konfirmasi dari ahli mikologi!</div>',
     unsafe_allow_html=True
@@ -168,7 +179,7 @@ st.markdown(
 
 st.write("Unggah gambar jamur untuk mengetahui apakah jamur tersebut **beracun atau layak dikonsumsi**.")
 
-# Pilihan metode input
+# Image input method selection
 option = st.radio("Pilih metode input gambar:", ["📂 Unggah dari file", "📸 Ambil foto langsung"])
 
 uploaded_file = None
@@ -179,11 +190,11 @@ if option == "📂 Unggah dari file":
 elif option == "📸 Ambil foto langsung":
     camera_file = st.camera_input("Ambil foto langsung 📸")
 
-# **Gunakan gambar yang dipilih**
+# **Use the selected image**
 if uploaded_file or camera_file:
     image = Image.open(uploaded_file if uploaded_file else camera_file)
 
-    # **Cek apakah gambar adalah jamur**
+    # **Check if the image is a mushroom**
     label_mushroom, confidence_mushroom = is_mushroom(image)
     
     if label_mushroom == "Jamur ✅":
@@ -191,13 +202,13 @@ if uploaded_file or camera_file:
 
         if st.button("Cek sekarang 🚀"):
             with st.spinner("Menganalisis gambar..."):
-                # Prediksi edible/poisonous
+                # Predict edible/poisonous
                 edibility, confidence_edibility = predict_edibility(image)
 
-                # Kirim ke Google Gemini untuk analisis genus & spesies
+                # Fetch additional information using Google Gemini
                 mushroom_info = get_mushroom_info(image)
 
-                # **Tampilkan hasil**
+                # **Display results**
                 st.subheader("📌 Hasil:")
                 st.write(f"**{edibility}** (Tingkat kepercayaan: {confidence_edibility:.2%})")
 
