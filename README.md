@@ -5,11 +5,15 @@ This project is a deep learning-based web application that classifies mushrooms 
 
 ## 🚀 Features
 ✅ Detects if an image contains a mushroom or not
+
 ✅ Classifies mushrooms as edible or poisonous
+
 ✅ Provides additional genus and species information using Google Gemini AI
+
 ✅ Simple web interface with Streamlit
 
-## 🏗️ Project Structure
+## 📂 Project Structure
+```
 mushroom_project/
 ├── models/                      # Trained models (not included in GitHub)
 │   ├── edible_mushroom_classifier.pth
@@ -30,6 +34,7 @@ mushroom_project/
 ├── .env.example                   # API key configuration (rename to .env)
 ├── requirements.txt               # Dependencies
 ├── README.md                      # Project documentation
+```
 
 ## 📊 Dataset
 This project uses publicly available datasets for training and evaluation:
