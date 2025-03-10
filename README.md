@@ -12,14 +12,14 @@ This project is a deep learning-based web application that classifies mushrooms 
 
 ✅ Simple web interface with Streamlit
 
-## 📂 Project Structure
+## 📂 Folder Structure
 ```
 mushroom_project/
-├── models/                      # Trained models (not included in GitHub)
+├── models/                      	# Trained models (not included in GitHub)
 │   ├── edible_mushroom_classifier.pth
 │   ├── nonmushroom_classifier.pth
 │
-├── dataset/                      # Dataset (not included in GitHub)
+├── dataset/                      	# Dataset (not included in GitHub)
 │   ├── dataset_mushroom_edibility/
 │   │   ├── edible_mushroom/
 │   │   ├── poisonous_mushroom/
@@ -28,12 +28,12 @@ mushroom_project/
 │       ├── mushroom/
 │       ├── nonmushroom/
 │
-├── app.py                        # Streamlit web app
-├── mushroom_preprocessing.ipynb  # Preprocessing edible/poisonous dataset
-├── nonmushroom_preprocessing.ipynb  # Preprocessing mushroom/non-mushroom dataset
-├── .env.example                   # API key configuration (rename to .env)
-├── requirements.txt               # Dependencies
-├── README.md                      # Project documentation
+├── app.py                        	# Streamlit web app
+├── mushroom_preprocessing.ipynb  	# Preprocessing edible/poisonous dataset
+├── nonmushroom_preprocessing.ipynb	# Preprocessing mushroom/non-mushroom dataset
+├── .env.example                   	# API key configuration (rename to .env)
+├── requirements.txt               	# Dependencies
+├── README.md                      	# Project documentation
 ```
 
 ## 📊 Dataset
