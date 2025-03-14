@@ -1,7 +1,7 @@
 # 🍄 Edible vs Poisonous Mushroom Classification
 
 ## 📌 Project Overview
-This project is a deep learning-based web application that classifies mushrooms as edible or poisonous using Convolutional Neural Networks (CNN). The model is built with PyTorch and deployed using Streamlit. Additionally, Google's Gemini AI API provides extra information about the detected mushrooms.
+This project is a deep learning-based web application that classifies mushrooms as edible or poisonous using Convolutional Neural Networks (CNN). The model is built with PyTorch and deployed using Streamlit. Additionally, Google's Gemini AI model, Gemini-2.0-Flash, provides extra information about the detected mushrooms.
 
 ## 🚀 Features
 ✅ Detects if an image contains a mushroom or not
