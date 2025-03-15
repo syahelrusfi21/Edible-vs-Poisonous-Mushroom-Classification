@@ -79,7 +79,7 @@ Two models were trained:
 ## ⚠️ Disclaimer
 🚨 This application is for educational purposes only. Do NOT consume mushrooms based solely on AI predictions. Always consult with a professional mycologist before consuming any wild mushrooms.
 
-## 🏆 Acknowledgments
+## 🌟 Acknowledgments
 - PyTorch for deep learning framework
 - Streamlit for web app
 - Google Gemini API for additional mushroom information
